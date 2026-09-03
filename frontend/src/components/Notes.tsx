@@ -266,7 +266,7 @@ export default function Notes() {
                     disabled={deletingId === note.id}
                     className="text-red-600 hover:underline disabled:opacity-50"
                   >
-                    {deletingId === note.id ? "Deleting..." : "Delete"}
+                    {deletingId === note.id ? "Deleting.." : "Delete"}
                   </button>
                 </div>
               </li>
