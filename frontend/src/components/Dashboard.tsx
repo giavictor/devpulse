@@ -1,4 +1,4 @@
-import type { GithubRepo, GithubEvent } from "../services/githubApi";
+import type { GithubRepo, GithubEvent } from "../types";
 import GithubStats from "./GithubStats";
 import RecentActivity from "./RecentActivity";
 

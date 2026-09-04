@@ -1,4 +1,4 @@
-import type { GithubRepo } from "../services/githubApi";
+import type { GithubRepo } from "../types";
 
 interface GithubStatsProps {
   repos: GithubRepo[];

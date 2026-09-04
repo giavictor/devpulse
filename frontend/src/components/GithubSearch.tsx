@@ -11,7 +11,7 @@ import type {
   GithubUser,
   GithubRepo,
   GithubEvent,
-} from "../services/githubApi";
+} from "../types";
 
 interface GithubSearchProps {
   onReposLoaded: (repos: GithubRepo[]) => void;

@@ -1,46 +1,17 @@
 import axios from "axios";
 
+import type {
+  GithubUser,
+  GithubRepo,
+  GithubEvent,
+  GithubDashboardData,
+} from "../types";
 const githubApi = axios.create({
   baseURL: "https://api.github.com",
   headers: {
     Accept: "application/vnd.github+json",
   },
 });
-
-// GitHub user profile
-export interface GithubUser {
-  login: string;
-  name: string | null;
-  avatar_url: string;
-  bio: string | null;
-  public_repos: number;
-  followers: number;
-  following: number;
-  html_url: string;
-  created_at: string;
-}
-
-// GitHub repository
-export interface GithubRepo {
-  id: number;
-  name: string;
-  html_url: string;
-  description: string | null;
-  stargazers_count: number;
-  language: string | null;
-  updated_at: string;
-}
-
-// GitHub event
-export interface GithubEvent {
-  id: string;
-  type: string;
-  repo: {
-    name: string;
-  };
-  created_at: string;
-  message: string;
-}
 
 // Custom error
 export class GithubApiError extends Error {
@@ -180,7 +151,7 @@ export async function getUserEvents(
 // 4. Get complete dashboard data
 export async function getGithubDashboardData(
   username: string
-) {
+): Promise<GithubDashboardData> {
   const [user, repos, events] = await Promise.all([
     getUser(username),
     getUserRepos(username),

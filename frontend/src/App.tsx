@@ -9,7 +9,7 @@ import Notes from "./components/Notes";
 import type {
   GithubRepo,
   GithubEvent,
-} from "./services/githubApi";
+} from "./types";
 
 function App() {
   const [repos, setRepos] = useState<GithubRepo[]>([]);

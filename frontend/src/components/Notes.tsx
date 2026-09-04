@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
-interface Note {
-  id: number;
-  title: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Note } from "../types";
 
 export default function Notes() {
   const [notes, setNotes] = useState<Note[]>([]);

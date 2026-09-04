@@ -1,4 +1,4 @@
-import type { GithubEvent } from "../services/githubApi";
+import type { GithubEvent } from "../types";
 
 interface RecentActivityProps {
   events: GithubEvent[];

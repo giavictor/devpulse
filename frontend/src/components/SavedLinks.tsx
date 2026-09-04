@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
-interface SavedLink {
-  id: number;
-  title: string;
-  url: string;
-  description?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { SavedLink } from "../types";
 
 export default function SavedLinks() {
   const [links, setLinks] = useState<SavedLink[]>([]);
