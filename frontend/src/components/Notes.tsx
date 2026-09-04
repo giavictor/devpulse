@@ -3,17 +3,24 @@ import api from "../services/api";
 
 import type { Note } from "../types";
 
+type OperationStatus = "idle" | "loading" | "success" | "error";
+
 export default function Notes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [status, setStatus] =
+    useState<OperationStatus>("idle");
+
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // Create note state
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Loading states for update and delete
+  // Update and delete loading states
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
@@ -22,21 +29,34 @@ export default function Notes() {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
 
+  // Show success message for 2 seconds
+  function showSuccess(message: string) {
+    setSuccess(message);
+
+    window.setTimeout(() => {
+      setSuccess(null);
+    }, 2000);
+  }
+
   // READ — Get all notes
   async function fetchNotes() {
     setLoading(true);
+    setStatus("loading");
     setError(null);
 
     try {
       const { data } = await api.get<Note[]>("/notes");
+
       setNotes(data);
+      setStatus("success");
     } catch (err) {
       console.error(err);
 
-      const message =
-        err instanceof Error ? err.message : "Something went wrong";
+      setError(
+        "Could not load notes. Check your connection and try again."
+      );
 
-      setError(message || "Failed to load notes.");
+      setStatus("error");
     } finally {
       setLoading(false);
     }
@@ -51,12 +71,16 @@ export default function Notes() {
     e.preventDefault();
 
     if (!title.trim() || !content.trim()) {
-      setError("Title and content are required.");
+      setError("Please enter both a title and note content.");
+      setSuccess(null);
+      setStatus("error");
       return;
     }
 
     setSubmitting(true);
     setError(null);
+    setSuccess(null);
+    setStatus("loading");
 
     try {
       const { data } = await api.post<Note>("/notes", {
@@ -68,13 +92,17 @@ export default function Notes() {
 
       setTitle("");
       setContent("");
+
+      showSuccess("Note saved successfully!");
+      setStatus("success");
     } catch (err) {
       console.error(err);
 
-      const message =
-        err instanceof Error ? err.message : "Something went wrong";
+      setError(
+        "Could not save the note. Check your connection and try again."
+      );
 
-      setError(message || "Failed to add note.");
+      setStatus("error");
     } finally {
       setSubmitting(false);
     }
@@ -85,6 +113,9 @@ export default function Notes() {
     setEditingId(note.id);
     setEditTitle(note.title);
     setEditContent(note.content);
+
+    setError(null);
+    setSuccess(null);
   }
 
   // Cancel editing
@@ -96,12 +127,16 @@ export default function Notes() {
   // UPDATE
   async function handleUpdate(id: number) {
     if (!editTitle.trim() || !editContent.trim()) {
-      setError("Title and content are required.");
+      setError("Please enter both a title and note content.");
+      setSuccess(null);
+      setStatus("error");
       return;
     }
 
     setUpdatingId(id);
     setError(null);
+    setSuccess(null);
+    setStatus("loading");
 
     try {
       const { data } = await api.put<Note>(`/notes/${id}`, {
@@ -110,17 +145,23 @@ export default function Notes() {
       });
 
       setNotes((prev) =>
-        prev.map((note) => (note.id === id ? data : note))
+        prev.map((note) =>
+          note.id === id ? data : note
+        )
       );
 
       setEditingId(null);
+
+      showSuccess("Note updated successfully!");
+      setStatus("success");
     } catch (err) {
       console.error(err);
 
-      const message =
-        err instanceof Error ? err.message : "Something went wrong";
+      setError(
+        "Could not update the note. Check your connection and try again."
+      );
 
-      setError(message || "Failed to update note.");
+      setStatus("error");
     } finally {
       setUpdatingId(null);
     }
@@ -128,8 +169,18 @@ export default function Notes() {
 
   // DELETE
   async function handleDelete(id: number) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this note?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     setDeletingId(id);
     setError(null);
+    setSuccess(null);
+    setStatus("loading");
 
     try {
       await api.delete(`/notes/${id}`);
@@ -137,13 +188,17 @@ export default function Notes() {
       setNotes((prev) =>
         prev.filter((note) => note.id !== id)
       );
+
+      showSuccess("Note deleted successfully!");
+      setStatus("success");
     } catch (err) {
       console.error(err);
 
-      const message =
-        err instanceof Error ? err.message : "Something went wrong";
+      setError(
+        "Could not delete the note. Check your connection and try again."
+      );
 
-      setError(message || "Failed to delete note.");
+      setStatus("error");
     } finally {
       setDeletingId(null);
     }
@@ -151,10 +206,15 @@ export default function Notes() {
 
   return (
     <div className="p-4 border rounded-lg">
-      <h2 className="text-lg font-semibold mb-3">Notes</h2>
+      <h2 className="text-lg font-semibold mb-3">
+        Notes
+      </h2>
 
       {/* CREATE FORM */}
-      <form onSubmit={handleAdd} className="flex flex-col gap-2 mb-4">
+      <form
+        onSubmit={handleAdd}
+        className="flex flex-col gap-2 mb-4"
+      >
         <input
           type="text"
           placeholder="Title"
@@ -178,25 +238,46 @@ export default function Notes() {
           disabled={submitting}
           className="bg-blue-600 text-white rounded px-3 py-2 text-sm disabled:opacity-50"
         >
-          {submitting ? "Adding..." : "Add Note"}
+          {submitting ? "Saving..." : "Add Note"}
         </button>
       </form>
 
-      {/* ERROR STATE */}
-      {error && (
-        <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
-          {error}
+      {/* SUCCESS MESSAGE */}
+      {success && (
+        <div className="mb-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
+          ✅ {success}
         </div>
       )}
 
-      {/* LOADING, EMPTY AND DATA STATES */}
+      {/* ERROR MESSAGE */}
+      {error && (
+        <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+          <p>❌ {error}</p>
+
+          {!loading && (
+            <button
+              type="button"
+              onClick={fetchNotes}
+              className="mt-2 underline font-medium"
+            >
+              Try Again
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* LOADING STATE */}
       {loading ? (
-        <p className="text-sm text-gray-500">Loading notes...</p>
+        <p className="text-sm text-gray-500">
+          ⏳ Loading notes...
+        </p>
       ) : notes.length === 0 ? (
+        /* EMPTY STATE */
         <p className="text-sm text-gray-400">
-          No notes yet. Add one above.
+          No notes yet — add your first one above.
         </p>
       ) : (
+        /* NOTES LIST */
         <ul className="space-y-2">
           {notes.map((note) =>
             editingId === note.id ? (
@@ -206,14 +287,18 @@ export default function Notes() {
               >
                 <input
                   value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
+                  onChange={(e) =>
+                    setEditTitle(e.target.value)
+                  }
                   disabled={updatingId === note.id}
                   className="border rounded px-2 py-1 text-sm w-full disabled:opacity-50"
                 />
 
                 <textarea
                   value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
+                  onChange={(e) =>
+                    setEditContent(e.target.value)
+                  }
                   disabled={updatingId === note.id}
                   className="border rounded px-2 py-1 text-sm w-full disabled:opacity-50"
                   rows={3}
@@ -226,7 +311,9 @@ export default function Notes() {
                     disabled={updatingId === note.id}
                     className="text-sm bg-green-600 text-white px-2 py-1 rounded disabled:opacity-50"
                   >
-                    {updatingId === note.id ? "Saving..." : "Save"}
+                    {updatingId === note.id
+                      ? "Saving..."
+                      : "Save"}
                   </button>
 
                   <button
@@ -245,7 +332,9 @@ export default function Notes() {
                 className="border rounded p-2 flex justify-between items-start"
               >
                 <div>
-                  <p className="font-medium">{note.title}</p>
+                  <p className="font-medium">
+                    {note.title}
+                  </p>
 
                   <p className="text-xs text-gray-500 whitespace-pre-wrap">
                     {note.content}
@@ -268,7 +357,9 @@ export default function Notes() {
                     disabled={deletingId === note.id}
                     className="text-red-600 hover:underline disabled:opacity-50"
                   >
-                    {deletingId === note.id ? "Deleting.." : "Delete"}
+                    {deletingId === note.id
+                      ? "Deleting..."
+                      : "Delete"}
                   </button>
                 </div>
               </li>
