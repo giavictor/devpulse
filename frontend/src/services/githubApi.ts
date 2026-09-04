@@ -92,7 +92,7 @@ export async function getUserEvents(
   username: string
 ): Promise<GithubEvent[]> {
   try {
-    const { data } = await githubApi.get<any[]>(
+    const { data } = await githubApi.get<GithubEvent[]>(
       `/users/${username}/events/public`,
       {
         params: {

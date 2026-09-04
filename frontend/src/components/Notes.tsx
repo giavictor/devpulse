@@ -32,7 +32,11 @@ export default function Notes() {
       setNotes(data);
     } catch (err) {
       console.error(err);
-      setError("Failed to load notes.");
+
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
+      setError(message || "Failed to load notes.");
     } finally {
       setLoading(false);
     }
@@ -64,13 +68,13 @@ export default function Notes() {
 
       setTitle("");
       setContent("");
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
 
-      setError(
-        err.response?.data?.errors?.join(", ") ||
-          "Failed to add note."
-      );
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
+      setError(message || "Failed to add note.");
     } finally {
       setSubmitting(false);
     }
@@ -110,13 +114,13 @@ export default function Notes() {
       );
 
       setEditingId(null);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
 
-      setError(
-        err.response?.data?.errors?.join(", ") ||
-          "Failed to update note."
-      );
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
+      setError(message || "Failed to update note.");
     } finally {
       setUpdatingId(null);
     }
@@ -135,7 +139,11 @@ export default function Notes() {
       );
     } catch (err) {
       console.error(err);
-      setError("Failed to delete note.");
+
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
+      setError(message || "Failed to delete note.");
     } finally {
       setDeletingId(null);
     }

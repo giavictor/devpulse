@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
@@ -34,7 +35,11 @@ export default function SavedLinks() {
       setLinks(data);
     } catch (err) {
       console.error(err);
-      setError("Failed to load saved links.");
+
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
+      setError(message || "Failed to load saved links.");
     } finally {
       setLoading(false);
     }
@@ -68,13 +73,13 @@ export default function SavedLinks() {
       setTitle("");
       setUrl("");
       setDescription("");
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
 
-      setError(
-        err.response?.data?.errors?.join(", ") ||
-          "Failed to add link. Check the URL."
-      );
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
+      setError(message || "Failed to add link. Check the URL.");
     } finally {
       setSubmitting(false);
     }
@@ -116,13 +121,13 @@ export default function SavedLinks() {
       );
 
       setEditingId(null);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
 
-      setError(
-        err.response?.data?.errors?.join(", ") ||
-          "Failed to update link."
-      );
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
+      setError(message || "Failed to update link.");
     } finally {
       setUpdatingId(null);
     }
@@ -141,7 +146,11 @@ export default function SavedLinks() {
       );
     } catch (err) {
       console.error(err);
-      setError("Failed to delete link.");
+
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+
+      setError(message || "Failed to delete link.");
     } finally {
       setDeletingId(null);
     }
