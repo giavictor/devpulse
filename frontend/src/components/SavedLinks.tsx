@@ -60,7 +60,44 @@ export default function SavedLinks() {
   const [editDescription, setEditDescription] =
     useState("");
 
-  // Show success message temporarily
+  // =========================================
+  // NORMALIZE URL
+  // =========================================
+
+  function normalizeUrl(linkUrl: string) {
+    const trimmedUrl = linkUrl.trim();
+
+    if (
+      trimmedUrl.startsWith("http://") ||
+      trimmedUrl.startsWith("https://")
+    ) {
+      return trimmedUrl;
+    }
+
+    return `https://${trimmedUrl}`;
+  }
+
+  // =========================================
+  // GET WEBSITE FAVICON
+  // =========================================
+
+  function getWebsiteIcon(linkUrl: string) {
+    try {
+      const normalizedUrl = normalizeUrl(linkUrl);
+
+      const domain =
+        new URL(normalizedUrl).hostname;
+
+      return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+    } catch {
+      return null;
+    }
+  }
+
+  // =========================================
+  // SHOW SUCCESS MESSAGE
+  // =========================================
+
   function showSuccess(message: string) {
     setSuccess(message);
 
@@ -69,7 +106,10 @@ export default function SavedLinks() {
     }, 2500);
   }
 
-  // READ — Load all links
+  // =========================================
+  // READ — LOAD ALL LINKS
+  // =========================================
+
   async function fetchLinks() {
     setLoading(true);
     setStatus("loading");
@@ -98,7 +138,10 @@ export default function SavedLinks() {
     fetchLinks();
   }, []);
 
-  // CREATE — Add a link
+  // =========================================
+  // CREATE — ADD LINK
+  // =========================================
+
   async function handleAdd(
     e: React.FormEvent
   ) {
@@ -124,7 +167,7 @@ export default function SavedLinks() {
       const { data } =
         await api.post<SavedLink>("/links", {
           title: title.trim(),
-          url: url.trim(),
+          url: normalizeUrl(url),
           description:
             description.trim() || undefined,
         });
@@ -153,7 +196,10 @@ export default function SavedLinks() {
     }
   }
 
-  // Start editing
+  // =========================================
+  // START EDITING
+  // =========================================
+
   function startEdit(link: SavedLink) {
     setEditingId(link.id);
 
@@ -168,7 +214,10 @@ export default function SavedLinks() {
     setSuccess(null);
   }
 
-  // Cancel editing
+  // =========================================
+  // CANCEL EDITING
+  // =========================================
+
   function cancelEdit() {
     setEditingId(null);
 
@@ -179,7 +228,10 @@ export default function SavedLinks() {
     setEditDescription("");
   }
 
-  // UPDATE
+  // =========================================
+  // UPDATE LINK
+  // =========================================
+
   async function handleUpdate(id: number) {
     if (
       !editTitle.trim() ||
@@ -206,7 +258,7 @@ export default function SavedLinks() {
           `/links/${id}`,
           {
             title: editTitle.trim(),
-            url: editUrl.trim(),
+            url: normalizeUrl(editUrl),
             description:
               editDescription.trim() || undefined,
           }
@@ -240,7 +292,10 @@ export default function SavedLinks() {
     }
   }
 
-  // DELETE
+  // =========================================
+  // DELETE LINK
+  // =========================================
+
   async function handleDelete(id: number) {
     const confirmed = window.confirm(
       "Are you sure you want to delete this link?"
@@ -286,8 +341,13 @@ export default function SavedLinks() {
     }
   }
 
+  // =========================================
+  // RENDER
+  // =========================================
+
   return (
     <section className="saved-links-section">
+
       {/* Heading */}
       <div className="saved-links-heading">
         <div>
@@ -311,7 +371,7 @@ export default function SavedLinks() {
         </span>
       </div>
 
-      {/* Add Link Form */}
+      {/* ADD LINK FORM */}
       <form
         onSubmit={handleAdd}
         className="add-link-form"
@@ -323,6 +383,7 @@ export default function SavedLinks() {
         </div>
 
         <div className="link-input-group">
+
           <input
             type="text"
             placeholder="Resource title"
@@ -356,6 +417,7 @@ export default function SavedLinks() {
             }
             disabled={submitting}
           />
+
         </div>
 
         <button
@@ -382,7 +444,7 @@ export default function SavedLinks() {
         </button>
       </form>
 
-      {/* Success Message */}
+      {/* SUCCESS MESSAGE */}
       {success && (
         <div className="saved-links-success">
           <Check size={18} />
@@ -391,7 +453,7 @@ export default function SavedLinks() {
         </div>
       )}
 
-      {/* Error Message */}
+      {/* ERROR MESSAGE */}
       {error && (
         <div className="saved-links-error">
           <AlertCircle size={19} />
@@ -411,43 +473,57 @@ export default function SavedLinks() {
         </div>
       )}
 
-      {/* Loading */}
+      {/* LOADING */}
       {loading ? (
         <div className="links-loading">
+
           <Loader2
             size={28}
             className="spin-icon"
           />
 
-          <p>Loading your saved links...</p>
+          <p>
+            Loading your saved links...
+          </p>
+
         </div>
       ) : links.length === 0 ? (
-        /* Empty State */
+
+        /* EMPTY STATE */
         <div className="links-empty-state">
+
           <Bookmark size={35} />
 
-          <h3>No saved links yet</h3>
+          <h3>
+            No saved links yet
+          </h3>
 
           <p>
             Add useful developer resources,
             documentation, tutorials, and
             websites above.
           </p>
+
         </div>
       ) : (
-        /* Links List */
+
+        /* LINKS LIST */
         <div className="saved-links-list">
+
           {links.map((link) =>
             editingId === link.id ? (
-              /* Edit Mode */
+
+              /* EDIT MODE */
               <div
                 key={link.id}
                 className="saved-link-edit-card"
               >
                 <div className="edit-card-header">
+
                   <Pencil size={17} />
 
                   <h3>Edit Link</h3>
+
                 </div>
 
                 <input
@@ -493,6 +569,7 @@ export default function SavedLinks() {
                 />
 
                 <div className="edit-actions">
+
                   <button
                     type="button"
                     className="save-edit-button"
@@ -534,21 +611,43 @@ export default function SavedLinks() {
 
                     Cancel
                   </button>
+
                 </div>
               </div>
             ) : (
-              /* Normal Link Card */
+
+              /* NORMAL LINK CARD */
               <div
                 key={link.id}
                 className="saved-link-card"
               >
+
+                {/* WEBSITE LOGO */}
                 <div className="saved-link-icon">
-                  <LinkIcon size={19} />
+
+                  {getWebsiteIcon(link.url) ? (
+                    <img
+                      src={
+                        getWebsiteIcon(link.url)!
+                      }
+                      alt={`${link.title} logo`}
+                      className="website-logo"
+                      onError={(e) => {
+                        e.currentTarget.style.display =
+                          "none";
+                      }}
+                    />
+                  ) : (
+                    <LinkIcon size={19} />
+                  )}
+
                 </div>
 
+                {/* LINK CONTENT */}
                 <div className="saved-link-content">
+
                   <a
-                    href={link.url}
+                    href={normalizeUrl(link.url)}
                     target="_blank"
                     rel="noreferrer"
                     className="saved-link-title"
@@ -567,9 +666,12 @@ export default function SavedLinks() {
                   <span className="saved-link-url">
                     {link.url}
                   </span>
+
                 </div>
 
+                {/* ACTIONS */}
                 <div className="saved-link-actions">
+
                   <button
                     type="button"
                     className="edit-link-button"
@@ -605,10 +707,12 @@ export default function SavedLinks() {
                       <Trash2 size={17} />
                     )}
                   </button>
+
                 </div>
               </div>
             )
           )}
+
         </div>
       )}
     </section>

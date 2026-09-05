@@ -4,7 +4,6 @@ import {
   Search,
   Users,
   UserPlus,
-  BookOpen,
   Loader2,
   AlertCircle,
   Code2,
@@ -42,14 +41,12 @@ export default function GithubSearch({
   const handleSearch = async () => {
     const trimmedUsername = username.trim();
 
-    // Check if input is empty
     if (!trimmedUsername) {
       setError("Please enter a GitHub username.");
       setStatus("error");
       return;
     }
 
-    // Start loading
     setStatus("loading");
     setError("");
     setUser(null);
@@ -59,15 +56,12 @@ export default function GithubSearch({
     onEventsLoaded([]);
 
     try {
-      // Fetch user and repositories
+      // Fetch GitHub data
       const data = await getUser(trimmedUsername);
       const repos = await getUserRepos(trimmedUsername);
-
-      // IMPORTANT:
-      // This matches your existing githubApi.ts
       const events = await getUserEvents(trimmedUsername);
 
-      // Update data
+      // Update profile and dashboard
       setUser(data);
       onReposLoaded(repos);
       onEventsLoaded(events);
@@ -90,6 +84,7 @@ export default function GithubSearch({
 
   return (
     <section className="github-search-section">
+
       {/* Heading */}
       <div className="search-heading">
         <div>
@@ -185,7 +180,6 @@ export default function GithubSearch({
 
           <div>
             <h3>Something went wrong</h3>
-
             <p>{error}</p>
           </div>
 
@@ -195,7 +189,7 @@ export default function GithubSearch({
         </div>
       )}
 
-      {/* Success State */}
+      {/* GitHub Profile */}
       {status === "success" && user && (
         <div className="github-profile-card">
 
@@ -228,21 +222,6 @@ export default function GithubSearch({
 
           {/* Profile Statistics */}
           <div className="profile-stats">
-
-            {/* Repositories */}
-            <div className="profile-stat">
-              <BookOpen size={20} />
-
-              <div>
-                <strong>
-                  {user.public_repos}
-                </strong>
-
-                <span>
-                  Repositories
-                </span>
-              </div>
-            </div>
 
             {/* Followers */}
             <div className="profile-stat">

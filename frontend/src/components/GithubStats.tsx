@@ -32,7 +32,7 @@ export default function GithubStats({
     }
   });
 
-  // Get the top 5 languages
+  // Get top 5 languages
   const mostUsedLanguages = Object.entries(languageCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
@@ -53,32 +53,126 @@ export default function GithubStats({
         <Code2 size={25} />
       </div>
 
-      {/* Main Statistics */}
+      {/* Statistics Cards */}
       <div className="stats-cards">
 
         {/* Repositories */}
-        <div className="stat-card">
-          <div className="stat-icon repositories-icon">
-            <FolderGit2 size={22} />
+        <div className="stat-card graph-card">
+          <div className="stat-card-top">
+
+            <div className="stat-icon repositories-icon">
+              <FolderGit2 size={22} />
+            </div>
+
+            <span className="stat-label">
+              REPOSITORIES
+            </span>
+
           </div>
 
-          <div>
-            <h3>{totalRepos}</h3>
+          <div className="stat-number">
+            {totalRepos}
+          </div>
 
-            <p>Repositories</p>
+          <p className="stat-description">
+            Total Repositories
+          </p>
+
+          {/* Repository Graph */}
+          <div className="stat-graph repositories-graph">
+            <svg
+              viewBox="0 0 300 80"
+              preserveAspectRatio="none"
+              aria-label="Repository statistics graph"
+            >
+              <polyline
+                points="
+                  0,65
+                  20,55
+                  40,60
+                  60,35
+                  80,48
+                  100,28
+                  120,42
+                  140,20
+                  160,38
+                  180,30
+                  200,48
+                  220,32
+                  240,25
+                  260,40
+                  280,18
+                  300,25
+                "
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <circle cx="300" cy="25" r="4" />
+            </svg>
           </div>
         </div>
 
         {/* Stars */}
-        <div className="stat-card">
-          <div className="stat-icon stars-icon">
-            <Star size={22} />
+        <div className="stat-card graph-card">
+          <div className="stat-card-top">
+
+            <div className="stat-icon stars-icon">
+              <Star size={22} />
+            </div>
+
+            <span className="stat-label">
+              TOTAL STARS
+            </span>
+
           </div>
 
-          <div>
-            <h3>{totalStars}</h3>
+          <div className="stat-number">
+            {totalStars}
+          </div>
 
-            <p>Total Stars</p>
+          <p className="stat-description">
+            Stars Across All Repositories
+          </p>
+
+          {/* Stars Graph */}
+          <div className="stat-graph stars-graph">
+            <svg
+              viewBox="0 0 300 80"
+              preserveAspectRatio="none"
+              aria-label="Stars statistics graph"
+            >
+              <polyline
+                points="
+                  0,70
+                  20,62
+                  40,66
+                  60,48
+                  80,55
+                  100,38
+                  120,45
+                  140,30
+                  160,40
+                  180,22
+                  200,35
+                  220,18
+                  240,28
+                  260,12
+                  280,22
+                  300,8
+                "
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <circle cx="300" cy="8" r="4" />
+            </svg>
           </div>
         </div>
 
@@ -95,6 +189,7 @@ export default function GithubStats({
 
         {mostUsedLanguages.length > 0 ? (
           <div className="languages-list">
+
             {mostUsedLanguages.map(
               ([language, count]) => (
                 <div
@@ -108,20 +203,24 @@ export default function GithubStats({
                   </div>
 
                   <span className="language-count">
-                    {count} repo{count !== 1 ? "s" : ""}
+                    {count} repo
+                    {count !== 1 ? "s" : ""}
                   </span>
                 </div>
               )
             )}
+
           </div>
         ) : (
           <div className="empty-languages">
+
             <Code2 size={24} />
 
             <p>
               Search for a GitHub user to see their
               programming languages.
             </p>
+
           </div>
         )}
 
