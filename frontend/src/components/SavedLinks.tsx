@@ -1,4 +1,18 @@
 import { useEffect, useState } from "react";
+
+import {
+  Bookmark,
+  Plus,
+  Link as LinkIcon,
+  ExternalLink,
+  Pencil,
+  Trash2,
+  X,
+  Check,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+
 import api from "../services/api";
 
 import type { SavedLink } from "../types";
@@ -9,27 +23,42 @@ export default function SavedLinks() {
   const [links, setLinks] = useState<SavedLink[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [status, setStatus] =
+  const [, setStatus] =
     useState<OperationStatus>("idle");
 
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const [success, setSuccess] =
+    useState<string | null>(null);
 
   // Add form state
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+
+  const [submitting, setSubmitting] =
+    useState(false);
 
   // Update and delete loading states
-  const [updatingId, setUpdatingId] = useState<number | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [updatingId, setUpdatingId] =
+    useState<number | null>(null);
+
+  const [deletingId, setDeletingId] =
+    useState<number | null>(null);
 
   // Edit form state
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editUrl, setEditUrl] = useState("");
-  const [editDescription, setEditDescription] = useState("");
+  const [editingId, setEditingId] =
+    useState<number | null>(null);
+
+  const [editTitle, setEditTitle] =
+    useState("");
+
+  const [editUrl, setEditUrl] =
+    useState("");
+
+  const [editDescription, setEditDescription] =
+    useState("");
 
   // Show success message temporarily
   function showSuccess(message: string) {
@@ -37,7 +66,7 @@ export default function SavedLinks() {
 
     window.setTimeout(() => {
       setSuccess(null);
-    }, 2000);
+    }, 2500);
   }
 
   // READ — Load all links
@@ -47,7 +76,8 @@ export default function SavedLinks() {
     setError(null);
 
     try {
-      const { data } = await api.get<SavedLink[]>("/links");
+      const { data } =
+        await api.get<SavedLink[]>("/links");
 
       setLinks(data);
       setStatus("success");
@@ -69,13 +99,19 @@ export default function SavedLinks() {
   }, []);
 
   // CREATE — Add a link
-  async function handleAdd(e: React.FormEvent) {
+  async function handleAdd(
+    e: React.FormEvent
+  ) {
     e.preventDefault();
 
     if (!title.trim() || !url.trim()) {
-      setError("Please enter both a title and a valid URL.");
+      setError(
+        "Please enter both a title and a valid URL."
+      );
+
       setSuccess(null);
       setStatus("error");
+
       return;
     }
 
@@ -85,13 +121,18 @@ export default function SavedLinks() {
     setStatus("loading");
 
     try {
-      const { data } = await api.post<SavedLink>("/links", {
-        title: title.trim(),
-        url: url.trim(),
-        description: description.trim() || undefined,
-      });
+      const { data } =
+        await api.post<SavedLink>("/links", {
+          title: title.trim(),
+          url: url.trim(),
+          description:
+            description.trim() || undefined,
+        });
 
-      setLinks((prev) => [data, ...prev]);
+      setLinks((prev) => [
+        data,
+        ...prev,
+      ]);
 
       setTitle("");
       setUrl("");
@@ -115,9 +156,13 @@ export default function SavedLinks() {
   // Start editing
   function startEdit(link: SavedLink) {
     setEditingId(link.id);
+
     setEditTitle(link.title);
     setEditUrl(link.url);
-    setEditDescription(link.description || "");
+
+    setEditDescription(
+      link.description || ""
+    );
 
     setError(null);
     setSuccess(null);
@@ -126,15 +171,27 @@ export default function SavedLinks() {
   // Cancel editing
   function cancelEdit() {
     setEditingId(null);
+
     setError(null);
+
+    setEditTitle("");
+    setEditUrl("");
+    setEditDescription("");
   }
 
   // UPDATE
   async function handleUpdate(id: number) {
-    if (!editTitle.trim() || !editUrl.trim()) {
-      setError("Please enter both a title and a valid URL.");
+    if (
+      !editTitle.trim() ||
+      !editUrl.trim()
+    ) {
+      setError(
+        "Please enter both a title and a valid URL."
+      );
+
       setSuccess(null);
       setStatus("error");
+
       return;
     }
 
@@ -144,24 +201,31 @@ export default function SavedLinks() {
     setStatus("loading");
 
     try {
-      const { data } = await api.put<SavedLink>(
-        `/links/${id}`,
-        {
-          title: editTitle.trim(),
-          url: editUrl.trim(),
-          description: editDescription.trim() || undefined,
-        }
-      );
+      const { data } =
+        await api.put<SavedLink>(
+          `/links/${id}`,
+          {
+            title: editTitle.trim(),
+            url: editUrl.trim(),
+            description:
+              editDescription.trim() || undefined,
+          }
+        );
 
       setLinks((prev) =>
         prev.map((link) =>
-          link.id === id ? data : link
+          link.id === id
+            ? data
+            : link
         )
       );
 
       setEditingId(null);
 
-      showSuccess("Link updated successfully!");
+      showSuccess(
+        "Link updated successfully!"
+      );
+
       setStatus("success");
     } catch (err) {
       console.error(err);
@@ -187,18 +251,27 @@ export default function SavedLinks() {
     }
 
     setDeletingId(id);
+
     setError(null);
     setSuccess(null);
+
     setStatus("loading");
 
     try {
-      await api.delete(`/links/${id}`);
-
-      setLinks((prev) =>
-        prev.filter((link) => link.id !== id)
+      await api.delete(
+        `/links/${id}`
       );
 
-      showSuccess("Link deleted successfully!");
+      setLinks((prev) =>
+        prev.filter(
+          (link) => link.id !== id
+        )
+      );
+
+      showSuccess(
+        "Link deleted successfully!"
+      );
+
       setStatus("success");
     } catch (err) {
       console.error(err);
@@ -214,196 +287,330 @@ export default function SavedLinks() {
   }
 
   return (
-    <div className="p-4 border rounded-lg">
-      <h2 className="text-lg font-semibold mb-3">
-        Saved Links
-      </h2>
+    <section className="saved-links-section">
+      {/* Heading */}
+      <div className="saved-links-heading">
+        <div>
+          <div className="section-title-row">
+            <Bookmark size={22} />
 
-      {/* CREATE FORM */}
+            <h2>Saved Links</h2>
+          </div>
+
+          <p>
+            Keep your favorite developer
+            resources in one place.
+          </p>
+        </div>
+
+        <span className="links-count">
+          {links.length}{" "}
+          {links.length === 1
+            ? "Link"
+            : "Links"}
+        </span>
+      </div>
+
+      {/* Add Link Form */}
       <form
         onSubmit={handleAdd}
-        className="flex flex-col gap-2 mb-4"
+        className="add-link-form"
       >
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          disabled={submitting}
-          className="border rounded px-3 py-2 text-sm disabled:opacity-50"
-        />
+        <div className="add-link-form-header">
+          <Plus size={18} />
 
-        <input
-          type="text"
-          placeholder="https://example.com"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          disabled={submitting}
-          className="border rounded px-3 py-2 text-sm disabled:opacity-50"
-        />
+          <h3>Add New Resource</h3>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          disabled={submitting}
-          className="border rounded px-3 py-2 text-sm disabled:opacity-50"
-        />
+        <div className="link-input-group">
+          <input
+            type="text"
+            placeholder="Resource title"
+            value={title}
+            onChange={(e) =>
+              setTitle(e.target.value)
+            }
+            disabled={submitting}
+          />
+
+          <div className="url-input-wrapper">
+            <LinkIcon size={17} />
+
+            <input
+              type="text"
+              placeholder="https://example.com"
+              value={url}
+              onChange={(e) =>
+                setUrl(e.target.value)
+              }
+              disabled={submitting}
+            />
+          </div>
+
+          <input
+            type="text"
+            placeholder="Description (optional)"
+            value={description}
+            onChange={(e) =>
+              setDescription(e.target.value)
+            }
+            disabled={submitting}
+          />
+        </div>
 
         <button
           type="submit"
           disabled={submitting}
-          className="bg-blue-600 text-white rounded px-3 py-2 text-sm disabled:opacity-50"
+          className="add-link-button"
         >
-          {submitting ? "Saving..." : "Add Link"}
+          {submitting ? (
+            <>
+              <Loader2
+                size={17}
+                className="spin-icon"
+              />
+
+              Saving...
+            </>
+          ) : (
+            <>
+              <Plus size={17} />
+
+              Add Link
+            </>
+          )}
         </button>
       </form>
 
-      {/* SUCCESS MESSAGE */}
+      {/* Success Message */}
       {success && (
-        <div className="mb-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
-          ✅ {success}
+        <div className="saved-links-success">
+          <Check size={18} />
+
+          <span>{success}</span>
         </div>
       )}
 
-      {/* ERROR MESSAGE */}
+      {/* Error Message */}
       {error && (
-        <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
-          <p>❌ {error}</p>
+        <div className="saved-links-error">
+          <AlertCircle size={19} />
 
-          {!loading && (
-            <button
-              type="button"
-              onClick={fetchLinks}
-              className="mt-2 underline font-medium"
-            >
-              Try Again
-            </button>
-          )}
+          <div>
+            <p>{error}</p>
+
+            {!loading && (
+              <button
+                type="button"
+                onClick={fetchLinks}
+              >
+                Try Again
+              </button>
+            )}
+          </div>
         </div>
       )}
 
-      {/* LOADING STATE */}
+      {/* Loading */}
       {loading ? (
-        <p className="text-sm text-gray-500">
-          ⏳ Loading links...
-        </p>
+        <div className="links-loading">
+          <Loader2
+            size={28}
+            className="spin-icon"
+          />
+
+          <p>Loading your saved links...</p>
+        </div>
       ) : links.length === 0 ? (
-        /* EMPTY STATE */
-        <p className="text-sm text-gray-400">
-          No saved links yet — add your first one above.
-        </p>
+        /* Empty State */
+        <div className="links-empty-state">
+          <Bookmark size={35} />
+
+          <h3>No saved links yet</h3>
+
+          <p>
+            Add useful developer resources,
+            documentation, tutorials, and
+            websites above.
+          </p>
+        </div>
       ) : (
-        /* DATA STATE */
-        <ul className="space-y-2">
+        /* Links List */
+        <div className="saved-links-list">
           {links.map((link) =>
             editingId === link.id ? (
-              <li
+              /* Edit Mode */
+              <div
                 key={link.id}
-                className="border rounded p-2 space-y-2"
+                className="saved-link-edit-card"
               >
+                <div className="edit-card-header">
+                  <Pencil size={17} />
+
+                  <h3>Edit Link</h3>
+                </div>
+
                 <input
+                  type="text"
                   value={editTitle}
                   onChange={(e) =>
-                    setEditTitle(e.target.value)
+                    setEditTitle(
+                      e.target.value
+                    )
                   }
-                  disabled={updatingId === link.id}
-                  className="border rounded px-2 py-1 w-full disabled:opacity-50"
+                  disabled={
+                    updatingId === link.id
+                  }
+                  placeholder="Title"
                 />
 
                 <input
+                  type="text"
                   value={editUrl}
                   onChange={(e) =>
-                    setEditUrl(e.target.value)
+                    setEditUrl(
+                      e.target.value
+                    )
                   }
-                  disabled={updatingId === link.id}
-                  className="border rounded px-2 py-1 w-full disabled:opacity-50"
+                  disabled={
+                    updatingId === link.id
+                  }
+                  placeholder="URL"
                 />
 
                 <input
+                  type="text"
                   value={editDescription}
                   onChange={(e) =>
-                    setEditDescription(e.target.value)
+                    setEditDescription(
+                      e.target.value
+                    )
                   }
-                  disabled={updatingId === link.id}
-                  className="border rounded px-2 py-1 w-full disabled:opacity-50"
+                  disabled={
+                    updatingId === link.id
+                  }
+                  placeholder="Description"
                 />
 
-                <div className="flex gap-2">
+                <div className="edit-actions">
                   <button
                     type="button"
+                    className="save-edit-button"
                     onClick={() =>
                       handleUpdate(link.id)
                     }
-                    disabled={updatingId === link.id}
-                    className="bg-green-600 text-white px-2 py-1 rounded disabled:opacity-50"
+                    disabled={
+                      updatingId === link.id
+                    }
                   >
-                    {updatingId === link.id
-                      ? "Saving..."
-                      : "Save"}
+                    {updatingId ===
+                    link.id ? (
+                      <>
+                        <Loader2
+                          size={16}
+                          className="spin-icon"
+                        />
+
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} />
+
+                        Save Changes
+                      </>
+                    )}
                   </button>
 
                   <button
                     type="button"
+                    className="cancel-edit-button"
                     onClick={cancelEdit}
-                    disabled={updatingId === link.id}
-                    className="bg-gray-200 px-2 py-1 rounded disabled:opacity-50"
+                    disabled={
+                      updatingId === link.id
+                    }
                   >
+                    <X size={16} />
+
                     Cancel
                   </button>
                 </div>
-              </li>
+              </div>
             ) : (
-              <li
+              /* Normal Link Card */
+              <div
                 key={link.id}
-                className="border rounded p-3 flex justify-between"
+                className="saved-link-card"
               >
-                <div>
+                <div className="saved-link-icon">
+                  <LinkIcon size={19} />
+                </div>
+
+                <div className="saved-link-content">
                   <a
                     href={link.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-medium text-blue-600 hover:underline"
+                    className="saved-link-title"
                   >
                     {link.title}
+
+                    <ExternalLink size={15} />
                   </a>
 
                   {link.description && (
-                    <p className="text-sm text-gray-500">
+                    <p>
                       {link.description}
                     </p>
                   )}
+
+                  <span className="saved-link-url">
+                    {link.url}
+                  </span>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="saved-link-actions">
                   <button
                     type="button"
-                    onClick={() => startEdit(link)}
-                    disabled={deletingId === link.id}
-                    className="disabled:opacity-50"
+                    className="edit-link-button"
+                    onClick={() =>
+                      startEdit(link)
+                    }
+                    disabled={
+                      deletingId === link.id
+                    }
+                    title="Edit link"
                   >
-                    Edit
+                    <Pencil size={17} />
                   </button>
 
                   <button
                     type="button"
+                    className="delete-link-button"
                     onClick={() =>
                       handleDelete(link.id)
                     }
-                    disabled={deletingId === link.id}
-                    className="text-red-600 disabled:opacity-50"
+                    disabled={
+                      deletingId === link.id
+                    }
+                    title="Delete link"
                   >
-                    {deletingId === link.id
-                      ? "Deleting..."
-                      : "Delete"}
+                    {deletingId ===
+                    link.id ? (
+                      <Loader2
+                        size={17}
+                        className="spin-icon"
+                      />
+                    ) : (
+                      <Trash2 size={17} />
+                    )}
                   </button>
                 </div>
-              </li>
+              </div>
             )
           )}
-        </ul>
+        </div>
       )}
-    </div>
+    </section>
   );
 }

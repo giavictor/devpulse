@@ -1,6 +1,7 @@
 import { useState } from "react";
+import "./App.css";
 
-import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
 import GithubSearch from "./components/GithubSearch";
 import SavedLinks from "./components/SavedLinks";
@@ -14,18 +15,43 @@ import type {
 function App() {
   const [repos, setRepos] = useState<GithubRepo[]>([]);
   const [events, setEvents] = useState<GithubEvent[]>([]);
+  const [activeSection, setActiveSection] = useState("Dashboard");
+
+  const handleSectionChange = (section: string) => {
+    setActiveSection(section);
+
+    const sectionIds: Record<string, string> = {
+      Dashboard: "dashboard",
+      "GitHub Search": "search",
+      "Saved Links": "links",
+      Notes: "notes",
+    };
+
+    const element = document.getElementById(
+      sectionIds[section]
+    );
+
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
+    <div className="app-layout">
+      {/* Sidebar */}
+      <Sidebar
+        activeSection={activeSection}
+        setActiveSection={handleSectionChange}
+      />
 
-      <main className="w-full max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+      {/* Main Content */}
+      <main className="main-content">
 
         {/* GitHub Search */}
-        <section
-          id="search"
-          className="w-full bg-white border rounded-lg p-4 sm:p-6 shadow-sm"
-        >
+        <section id="search">
           <GithubSearch
             onReposLoaded={setRepos}
             onEventsLoaded={setEvents}
@@ -41,16 +67,14 @@ function App() {
         </section>
 
         {/* Saved Links and Notes */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-
-          <section id="links" className="min-w-0">
+        <div className="bottom-grid">
+          <section id="links">
             <SavedLinks />
           </section>
 
-          <section id="notes" className="min-w-0">
+          <section id="notes">
             <Notes />
           </section>
-
         </div>
 
       </main>

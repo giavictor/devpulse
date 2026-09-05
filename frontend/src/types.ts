@@ -33,7 +33,6 @@ export interface GithubRepo {
 // ===============================
 // GitHub Event
 // ===============================
-
 export interface GithubEvent {
   id: string;
   type: string;
@@ -43,7 +42,6 @@ export interface GithubEvent {
   created_at: string;
   message: string;
 }
-
 
 // ===============================
 // Saved Link

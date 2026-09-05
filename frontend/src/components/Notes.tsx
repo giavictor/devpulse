@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
+import { FileText, Plus, Pencil, Trash2, X, Check, Loader2 } from "lucide-react";
+
 import api from "../services/api";
-
 import type { Note } from "../types";
-
-type OperationStatus = "idle" | "loading" | "success" | "error";
 
 export default function Notes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [status, setStatus] =
-    useState<OperationStatus>("idle");
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -29,7 +25,6 @@ export default function Notes() {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
 
-  // Show success message for 2 seconds
   function showSuccess(message: string) {
     setSuccess(message);
 
@@ -41,22 +36,18 @@ export default function Notes() {
   // READ — Get all notes
   async function fetchNotes() {
     setLoading(true);
-    setStatus("loading");
     setError(null);
 
     try {
       const { data } = await api.get<Note[]>("/notes");
 
       setNotes(data);
-      setStatus("success");
     } catch (err) {
       console.error(err);
 
       setError(
         "Could not load notes. Check your connection and try again."
       );
-
-      setStatus("error");
     } finally {
       setLoading(false);
     }
@@ -73,14 +64,12 @@ export default function Notes() {
     if (!title.trim() || !content.trim()) {
       setError("Please enter both a title and note content.");
       setSuccess(null);
-      setStatus("error");
       return;
     }
 
     setSubmitting(true);
     setError(null);
     setSuccess(null);
-    setStatus("loading");
 
     try {
       const { data } = await api.post<Note>("/notes", {
@@ -94,15 +83,12 @@ export default function Notes() {
       setContent("");
 
       showSuccess("Note saved successfully!");
-      setStatus("success");
     } catch (err) {
       console.error(err);
 
       setError(
         "Could not save the note. Check your connection and try again."
       );
-
-      setStatus("error");
     } finally {
       setSubmitting(false);
     }
@@ -129,14 +115,12 @@ export default function Notes() {
     if (!editTitle.trim() || !editContent.trim()) {
       setError("Please enter both a title and note content.");
       setSuccess(null);
-      setStatus("error");
       return;
     }
 
     setUpdatingId(id);
     setError(null);
     setSuccess(null);
-    setStatus("loading");
 
     try {
       const { data } = await api.put<Note>(`/notes/${id}`, {
@@ -153,15 +137,12 @@ export default function Notes() {
       setEditingId(null);
 
       showSuccess("Note updated successfully!");
-      setStatus("success");
     } catch (err) {
       console.error(err);
 
       setError(
         "Could not update the note. Check your connection and try again."
       );
-
-      setStatus("error");
     } finally {
       setUpdatingId(null);
     }
@@ -180,7 +161,6 @@ export default function Notes() {
     setDeletingId(id);
     setError(null);
     setSuccess(null);
-    setStatus("loading");
 
     try {
       await api.delete(`/notes/${id}`);
@@ -190,38 +170,46 @@ export default function Notes() {
       );
 
       showSuccess("Note deleted successfully!");
-      setStatus("success");
     } catch (err) {
       console.error(err);
 
       setError(
         "Could not delete the note. Check your connection and try again."
       );
-
-      setStatus("error");
     } finally {
       setDeletingId(null);
     }
   }
 
   return (
-    <div className="p-4 border rounded-lg">
-      <h2 className="text-lg font-semibold mb-3">
-        Notes
-      </h2>
+    <section className="notes-section">
+      {/* HEADER */}
+      <div className="notes-heading">
+        <div>
+          <div className="notes-title-row">
+            <FileText size={20} />
 
-      {/* CREATE FORM */}
-      <form
-        onSubmit={handleAdd}
-        className="flex flex-col gap-2 mb-4"
-      >
+            <h2>Developer Notes</h2>
+          </div>
+
+          <p>
+            Keep important ideas, tasks, and developer notes in one place.
+          </p>
+        </div>
+
+        <span className="notes-count">
+          {notes.length} {notes.length === 1 ? "Note" : "Notes"}
+        </span>
+      </div>
+
+      {/* ADD NOTE FORM */}
+      <form onSubmit={handleAdd} className="notes-form">
         <input
           type="text"
-          placeholder="Title"
+          placeholder="Note title..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={submitting}
-          className="border rounded px-3 py-2 text-sm disabled:opacity-50"
         />
 
         <textarea
@@ -229,61 +217,79 @@ export default function Notes() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           disabled={submitting}
-          className="border rounded px-3 py-2 text-sm disabled:opacity-50"
-          rows={3}
+          rows={4}
         />
 
         <button
           type="submit"
           disabled={submitting}
-          className="bg-blue-600 text-white rounded px-3 py-2 text-sm disabled:opacity-50"
+          className="notes-add-button"
         >
-          {submitting ? "Saving..." : "Add Note"}
+          {submitting ? (
+            <>
+              <Loader2 size={17} className="spin-icon" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Plus size={17} />
+              Add Note
+            </>
+          )}
         </button>
       </form>
 
       {/* SUCCESS MESSAGE */}
       {success && (
-        <div className="mb-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
-          ✅ {success}
+        <div className="notes-success-message">
+          <Check size={17} />
+          {success}
         </div>
       )}
 
       {/* ERROR MESSAGE */}
       {error && (
-        <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
-          <p>❌ {error}</p>
+        <div className="notes-error-message">
+          <p>{error}</p>
 
-          {!loading && (
-            <button
-              type="button"
-              onClick={fetchNotes}
-              className="mt-2 underline font-medium"
-            >
-              Try Again
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={fetchNotes}
+          >
+            Try Again
+          </button>
         </div>
       )}
 
-      {/* LOADING STATE */}
-      {loading ? (
-        <p className="text-sm text-gray-500">
-          ⏳ Loading notes...
-        </p>
-      ) : notes.length === 0 ? (
-        /* EMPTY STATE */
-        <p className="text-sm text-gray-400">
-          No notes yet — add your first one above.
-        </p>
-      ) : (
-        /* NOTES LIST */
-        <ul className="space-y-2">
+      {/* LOADING */}
+      {loading && (
+        <div className="notes-loading">
+          <Loader2 size={24} className="spin-icon" />
+          <p>Loading your notes...</p>
+        </div>
+      )}
+
+      {/* EMPTY STATE */}
+      {!loading && notes.length === 0 && (
+        <div className="notes-empty">
+          <FileText size={35} />
+
+          <h3>No notes yet</h3>
+
+          <p>
+            Add your first developer note using the form above.
+          </p>
+        </div>
+      )}
+
+      {/* NOTES LIST */}
+      {!loading && notes.length > 0 && (
+        <div className="notes-list">
           {notes.map((note) =>
             editingId === note.id ? (
-              <li
+              <div
                 key={note.id}
-                className="border rounded p-2 space-y-2"
+                className="note-card note-edit-card"
               >
                 <input
                   value={editTitle}
@@ -291,7 +297,7 @@ export default function Notes() {
                     setEditTitle(e.target.value)
                   }
                   disabled={updatingId === note.id}
-                  className="border rounded px-2 py-1 text-sm w-full disabled:opacity-50"
+                  className="note-edit-input"
                 />
 
                 <textarea
@@ -300,73 +306,96 @@ export default function Notes() {
                     setEditContent(e.target.value)
                   }
                   disabled={updatingId === note.id}
-                  className="border rounded px-2 py-1 text-sm w-full disabled:opacity-50"
-                  rows={3}
+                  className="note-edit-textarea"
+                  rows={4}
                 />
 
-                <div className="flex gap-2">
+                <div className="note-edit-actions">
                   <button
                     type="button"
                     onClick={() => handleUpdate(note.id)}
                     disabled={updatingId === note.id}
-                    className="text-sm bg-green-600 text-white px-2 py-1 rounded disabled:opacity-50"
+                    className="note-save-button"
                   >
-                    {updatingId === note.id
-                      ? "Saving..."
-                      : "Save"}
+                    {updatingId === note.id ? (
+                      <>
+                        <Loader2
+                          size={16}
+                          className="spin-icon"
+                        />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} />
+                        Save
+                      </>
+                    )}
                   </button>
 
                   <button
                     type="button"
                     onClick={cancelEdit}
                     disabled={updatingId === note.id}
-                    className="text-sm bg-gray-200 px-2 py-1 rounded disabled:opacity-50"
+                    className="note-cancel-button"
                   >
+                    <X size={16} />
                     Cancel
                   </button>
                 </div>
-              </li>
+              </div>
             ) : (
-              <li
+              <div
                 key={note.id}
-                className="border rounded p-2 flex justify-between items-start"
+                className="note-card"
               >
-                <div>
-                  <p className="font-medium">
-                    {note.title}
-                  </p>
+                <div className="note-card-content">
+                  <div className="note-icon">
+                    <FileText size={19} />
+                  </div>
 
-                  <p className="text-xs text-gray-500 whitespace-pre-wrap">
-                    {note.content}
-                  </p>
+                  <div className="note-text">
+                    <h3>{note.title}</h3>
+
+                    <p>{note.content}</p>
+                  </div>
                 </div>
 
-                <div className="flex gap-2 text-sm">
+                <div className="note-actions">
                   <button
                     type="button"
                     onClick={() => startEdit(note)}
                     disabled={deletingId === note.id}
-                    className="text-gray-600 hover:underline disabled:opacity-50"
+                    className="note-edit-button"
+                    title="Edit note"
                   >
-                    Edit
+                    <Pencil size={17} />
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => handleDelete(note.id)}
+                    onClick={() =>
+                      handleDelete(note.id)
+                    }
                     disabled={deletingId === note.id}
-                    className="text-red-600 hover:underline disabled:opacity-50"
+                    className="note-delete-button"
+                    title="Delete note"
                   >
-                    {deletingId === note.id
-                      ? "Deleting..."
-                      : "Delete"}
+                    {deletingId === note.id ? (
+                      <Loader2
+                        size={17}
+                        className="spin-icon"
+                      />
+                    ) : (
+                      <Trash2 size={17} />
+                    )}
                   </button>
                 </div>
-              </li>
+              </div>
             )
           )}
-        </ul>
+        </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -1,205 +1,282 @@
 import { useState } from "react";
 
 import {
-getUser,
-getUserRepos,
-getUserEvents,
-GithubApiError,
+  Search,
+  Users,
+  UserPlus,
+  BookOpen,
+  Loader2,
+  AlertCircle,
+  Code2,
+} from "lucide-react";
+
+import {
+  getUser,
+  getUserRepos,
+  getUserEvents,
+  GithubApiError,
 } from "../services/githubApi";
 
 import type {
-GithubUser,
-GithubRepo,
-GithubEvent,
+  GithubUser,
+  GithubRepo,
+  GithubEvent,
 } from "../types";
 
 interface GithubSearchProps {
-onReposLoaded: (repos: GithubRepo[]) => void;
-onEventsLoaded: (events: GithubEvent[]) => void;
+  onReposLoaded: (repos: GithubRepo[]) => void;
+  onEventsLoaded: (events: GithubEvent[]) => void;
 }
 
 type SearchStatus = "idle" | "loading" | "success" | "error";
 
 export default function GithubSearch({
-onReposLoaded,
-onEventsLoaded,
+  onReposLoaded,
+  onEventsLoaded,
 }: GithubSearchProps) {
-const [username, setUsername] = useState("");
-const [user, setUser] = useState<GithubUser | null>(null);
+  const [username, setUsername] = useState("");
+  const [user, setUser] = useState<GithubUser | null>(null);
+  const [status, setStatus] = useState<SearchStatus>("idle");
+  const [error, setError] = useState("");
 
-// Task 3: Clear state management
-const [status, setStatus] = useState<SearchStatus>("idle");
+  const handleSearch = async () => {
+    const trimmedUsername = username.trim();
 
-// Error message
-const [error, setError] = useState("");
+    // Check if input is empty
+    if (!trimmedUsername) {
+      setError("Please enter a GitHub username.");
+      setStatus("error");
+      return;
+    }
 
-const handleSearch = async () => {
-const trimmedUsername = username.trim();
+    // Start loading
+    setStatus("loading");
+    setError("");
+    setUser(null);
 
-// Empty input validation
-if (!trimmedUsername) {
-  setError("Please enter a GitHub username.");
-  setStatus("error");
-  return;
-}
+    // Clear previous dashboard data
+    onReposLoaded([]);
+    onEventsLoaded([]);
 
-// Start loading
-setStatus("loading");
-setError("");
+    try {
+      // Fetch user and repositories
+      const data = await getUser(trimmedUsername);
+      const repos = await getUserRepos(trimmedUsername);
 
-// Clear previous data
-setUser(null);
-onReposLoaded([]);
-onEventsLoaded([]);
+      // IMPORTANT:
+      // This matches your existing githubApi.ts
+      const events = await getUserEvents(trimmedUsername);
 
-try {
-  // Get GitHub user
-  const data = await getUser(trimmedUsername);
+      // Update data
+      setUser(data);
+      onReposLoaded(repos);
+      onEventsLoaded(events);
 
-  // Get repositories
-  const repos = await getUserRepos(trimmedUsername);
-
-  // Get recent events
-  const events = await getUserEvents(trimmedUsername);
-
-  // Save results
-  setUser(data);
-  onReposLoaded(repos);
-  onEventsLoaded(events);
-
-  // Success state
-  setStatus("success");
-} catch (err) {
-  if (err instanceof GithubApiError) {
-    setError(err.message);
-  } else if (err instanceof Error) {
-    setError(err.message);
-  } else {
-    setError(
-      "Unable to connect to GitHub. Please check your internet connection and try again."
-    );
-  }
-
-  // Error state
-  setStatus("error");
-}
-
-
-};
-
-return ( <div> <h2>GitHub Search</h2>
-
-```
-  {/* Controlled input */}
-  <input
-    type="text"
-    placeholder="Enter GitHub username"
-    value={username}
-    onChange={(e) => setUsername(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") {
-        handleSearch();
+      setStatus("success");
+    } catch (err) {
+      if (err instanceof GithubApiError) {
+        setError(err.message);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(
+          "Unable to connect to GitHub. Please check your internet connection and try again."
+        );
       }
-    }}
-  />
 
-  {/* Search button */}
-  <button
-    onClick={handleSearch}
-    disabled={status === "loading"}
-  >
-    {status === "loading" ? "Searching..." : "Search"}
-  </button>
+      setStatus("error");
+    }
+  };
 
-  {/* IDLE / EMPTY STATE */}
-  {status === "idle" && (
-    <div>
-      <p>
-        👋 Enter a GitHub username to view their profile,
-        repositories, stats, and recent activity.
-      </p>
-    </div>
-  )}
+  return (
+    <section className="github-search-section">
+      {/* Heading */}
+      <div className="search-heading">
+        <div>
+          <p className="section-label">
+            DEVELOPER INTELLIGENCE
+          </p>
 
-  {/* LOADING STATE */}
-  {status === "loading" && (
-    <div>
-      <p>⏳ Loading GitHub data...</p>
+          <h2>Explore GitHub Profiles</h2>
 
-      <div
-        style={{
-          width: "30px",
-          height: "30px",
-          border: "4px solid #ddd",
-          borderTop: "4px solid #333",
-          borderRadius: "50%",
-          animation: "spin 1s linear infinite",
-        }}
-      />
-    </div>
-  )}
+          <p className="section-description">
+            Search any developer and explore their repositories,
+            activity, and developer statistics.
+          </p>
+        </div>
 
-  {/* ERROR STATE */}
-  {status === "error" && (
-    <div>
-      <p>❌ {error}</p>
+        <Code2
+          size={38}
+          className="github-main-icon"
+        />
+      </div>
 
-      <button
-        onClick={handleSearch}
-        disabled={status === "loading"}
-      >
-        Try Again
-      </button>
-    </div>
-  )}
+      {/* Search Bar */}
+      <div className="github-search-bar">
+        <Search size={20} />
 
-  {/* SUCCESS STATE */}
-  {status === "success" && user && (
-    <div>
-      <p>✅ GitHub profile loaded successfully!</p>
+        <input
+          type="text"
+          placeholder="Enter GitHub username..."
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+        />
 
-      <img
-        src={user.avatar_url}
-        alt={user.login}
-        width={100}
-      />
+        <button
+          onClick={handleSearch}
+          disabled={status === "loading"}
+        >
+          {status === "loading" ? (
+            <>
+              <Loader2
+                size={18}
+                className="spin-icon"
+              />
+              Searching...
+            </>
+          ) : (
+            <>
+              <Search size={18} />
+              Search
+            </>
+          )}
+        </button>
+      </div>
 
-      <h3>{user.name || user.login}</h3>
+      {/* Idle State */}
+      {status === "idle" && (
+        <div className="search-idle-state">
+          <Code2 size={30} />
 
-      <p>
-        {user.bio || "No bio available."}
-      </p>
+          <div>
+            <h3>Ready to explore?</h3>
 
-      <p>
-        Public Repositories: {user.public_repos}
-      </p>
+            <p>
+              Enter a GitHub username to view repositories,
+              stars, languages, and recent activity.
+            </p>
+          </div>
+        </div>
+      )}
 
-      <p>
-        Followers: {user.followers}
-      </p>
+      {/* Loading State */}
+      {status === "loading" && (
+        <div className="search-loading-state">
+          <Loader2
+            size={30}
+            className="spin-icon"
+          />
 
-      <p>
-        Following: {user.following}
-      </p>
-    </div>
-  )}
+          <p>
+            Fetching GitHub profile and repository data...
+          </p>
+        </div>
+      )}
 
-  {/* Spinner animation */}
-  <style>
-    {`
-      @keyframes spin {
-        from {
-          transform: rotate(0deg);
-        }
+      {/* Error State */}
+      {status === "error" && (
+        <div className="search-error-state">
+          <AlertCircle size={24} />
 
-        to {
-          transform: rotate(360deg);
-        }
-      }
-    `}
-  </style>
-</div>
+          <div>
+            <h3>Something went wrong</h3>
 
+            <p>{error}</p>
+          </div>
 
-);
+          <button onClick={handleSearch}>
+            Try Again
+          </button>
+        </div>
+      )}
+
+      {/* Success State */}
+      {status === "success" && user && (
+        <div className="github-profile-card">
+
+          {/* Profile Information */}
+          <div className="profile-main-info">
+            <img
+              src={user.avatar_url}
+              alt={user.login}
+              className="github-avatar"
+            />
+
+            <div>
+              <p className="profile-label">
+                GITHUB PROFILE
+              </p>
+
+              <h3>
+                {user.name || user.login}
+              </h3>
+
+              <p className="github-username">
+                @{user.login}
+              </p>
+
+              <p className="github-bio">
+                {user.bio || "No bio available."}
+              </p>
+            </div>
+          </div>
+
+          {/* Profile Statistics */}
+          <div className="profile-stats">
+
+            {/* Repositories */}
+            <div className="profile-stat">
+              <BookOpen size={20} />
+
+              <div>
+                <strong>
+                  {user.public_repos}
+                </strong>
+
+                <span>
+                  Repositories
+                </span>
+              </div>
+            </div>
+
+            {/* Followers */}
+            <div className="profile-stat">
+              <Users size={20} />
+
+              <div>
+                <strong>
+                  {user.followers}
+                </strong>
+
+                <span>
+                  Followers
+                </span>
+              </div>
+            </div>
+
+            {/* Following */}
+            <div className="profile-stat">
+              <UserPlus size={20} />
+
+              <div>
+                <strong>
+                  {user.following}
+                </strong>
+
+                <span>
+                  Following
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </section>
+  );
 }

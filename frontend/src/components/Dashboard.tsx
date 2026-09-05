@@ -16,25 +16,39 @@ export default function Dashboard({
   events,
 }: DashboardProps) {
   return (
-    <section className="space-y-4 sm:space-y-6">
+    <section className="dashboard-section">
 
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold break-words">
-          DevPulse Dashboard
-        </h1>
+      {/* Dashboard Heading */}
+      <div className="dashboard-heading">
+        <div>
+          <p className="section-label">
+            DEVELOPER OVERVIEW
+          </p>
 
-        <p className="mt-1 text-sm sm:text-base text-gray-600">
-          Track your GitHub activity and developer resources.
-        </p>
+          <h1>DevPulse Dashboard</h1>
+
+          <p className="dashboard-description">
+            Track your GitHub statistics, programming languages,
+            and recent developer activity.
+          </p>
+        </div>
+
+        <div className="dashboard-status">
+          <span className="status-dot"></span>
+          Ready
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      {/* Dashboard Cards */}
+      <div className="dashboard-grid">
 
-        <div className="min-w-0 bg-white border rounded-lg p-4 sm:p-6 shadow-sm">
+        {/* GitHub Statistics */}
+        <div className="dashboard-card">
           <GithubStats repos={repos} />
         </div>
 
-        <div className="min-w-0 bg-white border rounded-lg p-4 sm:p-6 shadow-sm">
+        {/* Recent Activity */}
+        <div className="dashboard-card">
           <RecentActivity events={events} />
         </div>
 

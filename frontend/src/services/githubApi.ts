@@ -96,7 +96,7 @@ export async function getUserEvents(
       `/users/${username}/events/public`,
       {
         params: {
-          per_page: 10,
+          per_page: 100,
         },
       }
     );
@@ -106,31 +106,46 @@ export async function getUserEvents(
 
       switch (event.type) {
         case "PushEvent":
-          message = `pushed to ${event.repo.name}`;
+          message = `Pushed to ${event.repo.name}`;
           break;
 
         case "WatchEvent":
-          message = `starred ${event.repo.name}`;
+          message = `Starred ${event.repo.name}`;
           break;
 
         case "ForkEvent":
-          message = `forked ${event.repo.name}`;
+          message = `Forked ${event.repo.name}`;
           break;
 
         case "IssuesEvent":
-          message = `updated an issue in ${event.repo.name}`;
+          message = `Updated an issue in ${event.repo.name}`;
           break;
 
         case "PullRequestEvent":
-          message = `updated a pull request in ${event.repo.name}`;
+          message = `Updated a pull request in ${event.repo.name}`;
           break;
 
         case "CreateEvent":
-          message = `created something in ${event.repo.name}`;
+          message = `Created something in ${event.repo.name}`;
+          break;
+
+        case "DeleteEvent":
+          message = `Deleted something from ${event.repo.name}`;
+          break;
+
+        case "IssueCommentEvent":
+          message = `Commented on an issue in ${event.repo.name}`;
+          break;
+
+        case "PullRequestReviewEvent":
+          message = `Reviewed a pull request in ${event.repo.name}`;
           break;
 
         default:
-          message = `${event.type.replace("Event", "")} ${event.repo.name}`;
+          message = `${event.type.replace(
+            "Event",
+            ""
+          )} in ${event.repo.name}`;
       }
 
       return {
