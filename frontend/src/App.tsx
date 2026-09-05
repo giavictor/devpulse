@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 import Sidebar from "./components/Sidebar";
@@ -15,21 +15,25 @@ import type {
 function App() {
   const [repos, setRepos] = useState<GithubRepo[]>([]);
   const [events, setEvents] = useState<GithubEvent[]>([]);
-  const [activeSection, setActiveSection] = useState("Dashboard");
 
+  const [activeSection, setActiveSection] =
+    useState("GitHub Search");
+
+  // Sidebar click → smooth scroll
   const handleSectionChange = (section: string) => {
     setActiveSection(section);
 
     const sectionIds: Record<string, string> = {
-      Dashboard: "dashboard",
       "GitHub Search": "search",
-      "Saved Links": "links",
-      Notes: "notes",
+      "Dashboard": "dashboard",
+      "Saved Links / Notes": "resources",
     };
 
-    const element = document.getElementById(
-      sectionIds[section]
-    );
+    const elementId = sectionIds[section];
+
+    if (!elementId) return;
+
+    const element = document.getElementById(elementId);
 
     if (element) {
       element.scrollIntoView({
@@ -39,18 +43,63 @@ function App() {
     }
   };
 
+  // Update active sidebar item while scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+      const search = document.getElementById("search");
+      const dashboard = document.getElementById("dashboard");
+      const resources = document.getElementById("resources");
+
+      if (!search || !dashboard || !resources) return;
+
+      const scrollPosition =
+        window.scrollY + window.innerHeight / 3;
+
+      const searchTop = search.offsetTop;
+      const dashboardTop = dashboard.offsetTop;
+      const resourcesTop = resources.offsetTop;
+
+      if (
+        scrollPosition >= resourcesTop
+      ) {
+        setActiveSection("Saved Links / Notes");
+      } else if (
+        scrollPosition >= dashboardTop
+      ) {
+        setActiveSection("Dashboard");
+      } else if (
+        scrollPosition >= searchTop
+      ) {
+        setActiveSection("GitHub Search");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    // Check current position when page loads
+    handleScroll();
+
+    return () => {
+      window.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+    };
+  }, []);
+
   return (
     <div className="app-layout">
-      {/* Sidebar */}
+
+      {/* SIDEBAR */}
       <Sidebar
         activeSection={activeSection}
         setActiveSection={handleSectionChange}
       />
 
-      {/* Main Content */}
+      {/* MAIN CONTENT */}
       <main className="main-content">
 
-        {/* GitHub Search */}
+        {/* GITHUB SEARCH */}
         <section id="search">
           <GithubSearch
             onReposLoaded={setRepos}
@@ -58,7 +107,7 @@ function App() {
           />
         </section>
 
-        {/* Dashboard */}
+        {/* DASHBOARD */}
         <section id="dashboard">
           <Dashboard
             repos={repos}
@@ -66,16 +115,20 @@ function App() {
           />
         </section>
 
-        {/* Saved Links and Notes */}
-        <div className="bottom-grid">
-          <section id="links">
-            <SavedLinks />
-          </section>
+        {/* SAVED LINKS + NOTES */}
+        <section id="resources">
+          <div className="bottom-grid">
 
-          <section id="notes">
-            <Notes />
-          </section>
-        </div>
+            <section id="links">
+              <SavedLinks />
+            </section>
+
+            <section id="notes">
+              <Notes />
+            </section>
+
+          </div>
+        </section>
 
       </main>
     </div>

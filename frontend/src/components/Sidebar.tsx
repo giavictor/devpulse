@@ -3,7 +3,6 @@ import {
   Bookmark,
   LayoutDashboard,
   Search,
-  StickyNote,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -25,12 +24,8 @@ const Sidebar = ({
       icon: LayoutDashboard,
     },
     {
-      name: "Saved Links",
+      name: "Saved Links / Notes",
       icon: Bookmark,
-    },
-    {
-      name: "Notes",
-      icon: StickyNote,
     },
   ];
 
@@ -59,6 +54,7 @@ const Sidebar = ({
               onClick={() => setActiveSection(item.name)}
             >
               <Icon size={19} />
+
               <span>{item.name}</span>
             </button>
           );

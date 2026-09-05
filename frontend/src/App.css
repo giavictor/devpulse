@@ -2310,3 +2310,11 @@ a {
 html {
   scroll-behavior: smooth;
 }
+html {
+  scroll-behavior: smooth;
+}
+#search,
+#dashboard,
+#resources {
+  scroll-margin-top: 20px;
+}
