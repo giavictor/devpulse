@@ -2385,3 +2385,77 @@ a {
   position: static;
   text-align: center;
 }
+/* =========================================
+   NOTES SUCCESS MESSAGE
+========================================= */
+
+.notes-success-message {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+
+  padding: 13px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+
+  background: rgba(34, 197, 94, 0.1);
+
+  border: 1px solid rgba(34, 197, 94, 0.25);
+
+  color: #22c55e;
+}
+
+
+/* =========================================
+   NOTES ERROR MESSAGE
+========================================= */
+
+.notes-error-message {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+
+  padding: 13px;
+
+  border-radius: 9px;
+
+  background: rgba(239, 35, 60, 0.1);
+
+  border: 1px solid rgba(239, 35, 60, 0.25);
+
+  color: #ff6b7a;
+
+  font-size: 13px;
+}
+
+.notes-error-message p {
+  margin: 0;
+}
+
+.notes-error-message button {
+  border: none;
+
+  background: #ef233c;
+
+  color: white;
+
+  padding: 8px 13px;
+
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  font-size: 12px;
+}
