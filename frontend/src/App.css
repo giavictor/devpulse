@@ -2281,3 +2281,107 @@ a {
 
   display: block;
 }
+.graph-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+  overflow: hidden;
+}
+
+.stat-graph {
+  width: 100%;
+  height: 40px;
+  margin-top: 18px;
+  margin-bottom: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.analytics-chart {
+  width: 100%;
+  height: 40px;
+  display: block;
+}
+
+.repositories-graph {
+  color: #7c3aed;
+}
+
+.stars-graph {
+  color: #f59e0b;
+}
+.stat-card-top-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+/* =========================================
+   GRAPH
+========================================= */
+
+.graph-card {
+  overflow: hidden;
+}
+
+.stat-graph {
+  width: 100%;
+  height: 40px;
+  margin-top: 18px;
+  margin-bottom: 0;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.analytics-chart {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Remove any extra line/space under graph */
+
+.repositories-graph,
+.stars-graph {
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+
+/* SVG should not create extra bottom space */
+
+.stat-graph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* =========================================
+   BEFORE SEARCH
+========================================= */
+
+.stat-card:not(.graph-card) {
+  min-height: auto;
+}
+
+.stat-card:not(.graph-card) .stat-description {
+  margin-bottom: 0;
+}
+.graph-card .stat-card-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+}
+.graph-card .stat-icon {
+  margin: 0;
+}
+
+.graph-card .stat-label {
+  position: static;
+  text-align: center;
+}

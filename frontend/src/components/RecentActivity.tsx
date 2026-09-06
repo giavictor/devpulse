@@ -8,6 +8,7 @@ import {
   MessageSquare,
   GitMerge,
   Activity,
+  Star,
 } from "lucide-react";
 
 interface RecentActivityProps {
@@ -17,8 +18,13 @@ interface RecentActivityProps {
 export default function RecentActivity({
   events = [],
 }: RecentActivityProps) {
+
+  // =========================================
+  // GET EVENT TYPE AND ICON
+  // =========================================
+
   const getEventDetails = (event: GithubEvent) => {
-    const message = event.message.toLowerCase();
+    const message = (event.message || "").toLowerCase();
 
     if (message.includes("push")) {
       return {
@@ -47,6 +53,14 @@ export default function RecentActivity({
       };
     }
 
+    if (message.includes("star")) {
+      return {
+        icon: Star,
+        type: "Star",
+        className: "activity-star",
+      };
+    }
+
     if (message.includes("issue")) {
       return {
         icon: CircleDot,
@@ -65,7 +79,8 @@ export default function RecentActivity({
 
     if (
       message.includes("repository") ||
-      message.includes("repo")
+      message.includes("repo") ||
+      message.includes("created")
     ) {
       return {
         icon: FolderPlus,
@@ -80,6 +95,10 @@ export default function RecentActivity({
       className: "activity-default",
     };
   };
+
+  // =========================================
+  // FORMAT EVENT TIME
+  // =========================================
 
   const formatTime = (dateString: string) => {
     const eventDate = new Date(dateString);
@@ -100,81 +119,149 @@ export default function RecentActivity({
       difference / (1000 * 60 * 60 * 24)
     );
 
+    if (minutes < 1) {
+      return "Just now";
+    }
+
     if (minutes < 60) {
-      return `${Math.max(minutes, 1)} min ago`;
+      return `${minutes} min ago`;
     }
 
     if (hours < 24) {
-      return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+      return `${hours} hour${
+        hours !== 1 ? "s" : ""
+      } ago`;
     }
 
     if (days < 7) {
-      return `${days} day${days !== 1 ? "s" : ""} ago`;
+      return `${days} day${
+        days !== 1 ? "s" : ""
+      } ago`;
     }
 
     return eventDate.toLocaleDateString();
   };
 
+  // =========================================
+  // RENDER
+  // =========================================
+
   return (
     <div className="recent-activity">
 
-      {/* Heading */}
+      {/* SECTION HEADING */}
+
       <div className="activity-heading">
+
         <div>
+
           <p className="section-label">
             LIVE DEVELOPER EVENTS
           </p>
 
-          <h2>Recent Activity</h2>
+          <h2>
+            Recent Activity
+          </h2>
+
         </div>
 
         <Activity size={25} />
+
       </div>
 
-      {/* Empty State */}
+      {/* =====================================
+          EMPTY STATE
+      ===================================== */}
+
       {events.length === 0 ? (
+
         <div className="activity-empty">
+
           <Activity size={30} />
 
-          <p>
-            Search for a GitHub user to view their
-            recent activity.
-          </p>
+          <div>
+
+            <h3>
+              No activity to display
+            </h3>
+
+            <p>
+              Search for a GitHub user to view their
+              recent developer activity.
+            </p>
+
+          </div>
+
         </div>
+
       ) : (
+
+        /* =====================================
+            ACTIVITY LIST
+        ===================================== */
+
         <div className="activity-list">
+
           {events.slice(0, 6).map((event) => {
-            const details = getEventDetails(event);
-            const Icon = details.icon;
+
+            const details =
+              getEventDetails(event);
+
+            const Icon =
+              details.icon;
 
             return (
+
               <div
                 className="activity-item"
                 key={event.id}
               >
+
+                {/* EVENT ICON */}
+
                 <div
-                  className={`activity-icon ${details.className}`}
+                  className={
+                    `activity-icon ${details.className}`
+                  }
                 >
+
                   <Icon size={19} />
+
                 </div>
 
+                {/* EVENT CONTENT */}
+
                 <div className="activity-content">
-                  <h3>{event.message}</h3>
+
+                  <h3>
+                    {event.message}
+                  </h3>
 
                   <p>
                     {formatTime(event.created_at)}
                   </p>
+
                 </div>
 
+                {/* EVENT TYPE */}
+
                 <span
-                  className={`activity-badge ${details.className}`}
+                  className={
+                    `activity-badge ${details.className}`
+                  }
                 >
+
                   {details.type}
+
                 </span>
+
               </div>
+
             );
           })}
+
         </div>
+
       )}
 
     </div>
