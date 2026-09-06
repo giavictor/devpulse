@@ -11,10 +11,25 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
+// Allowed frontend URLs
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://devpulse-seven-sigma.vercel.app",
+];
+
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests without an origin and allowed frontend URLs
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
   })
 );
 
@@ -42,5 +57,5 @@ app.use("/api/notes", noteRoutes);
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
