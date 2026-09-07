@@ -9,14 +9,10 @@ DevPulse is a developer productivity dashboard. Search any GitHub profile to see
 
 ## 📸 demo
 
-<!-- Add a screenshot or screen-recording GIF of the app below. -->
-<!-- Example:
-<img src="./screenshots/dashboard.png" alt="DevPulse dashboard screenshot" width="800" />
--->
+<img width="680" height="363" alt="devpulse-demo-full (1)" src="https://github.com/user-attachments/assets/8460860d-0855-4695-abdf-65ea27246e61" />
 
-<!-- SCREENSHOT/GIF GOES HERE -->
 
----
+
 
 ## ✨ Features
 
