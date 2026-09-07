@@ -2764,3 +2764,47 @@ a {
 
   cursor: not-allowed;
 }
+.saved-link-edit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background: #121217;
+  border: 1px solid #29292f;
+  border-radius: 12px;
+}
+
+.edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.save-edit-button,
+.cancel-edit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Save Changes */
+.save-edit-button {
+  background: #ef233c;
+  border: 1px solid #ef233c;
+  color: #ffffff;
+}
+
+/* Cancel */
+.cancel-edit-button {
+  background: #1a1a20;
+  border: 1px solid #35353d;
+  color: #ffffff;
+}
